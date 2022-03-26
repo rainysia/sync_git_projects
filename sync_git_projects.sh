@@ -10,16 +10,17 @@
 # * @author     Rainy Sia <rainysia@gmail.com>
 # * @copyright  2013-2020 BTROOT.ORG
 # * @license    https://opensource.org/licenses/MIT license
-# * @version    GIT: 0.0.1
+# * @version    GIT: 0.0.2
 # * @createTime 2019-10-14 09:51:53
-# * @lastChange 2019-12-16 14:48:01
+# * @lastChange 2022-03-26 23:44:45
 
 # * @link http://www.btroot.org
 
 # /bin/bash /sh/sync_git_projects.sh /home/www/git_folders/ origin
 set -e
 # The default_branch will switch to this branch and do sync from origin(default remote)
-default_branch='master'
+# Some of branch switch to main as master branch
+# default_branch='master'
 # The protect_projects will skip to update the array's project.
 protect_projects=(tools lint)
 
@@ -70,8 +71,13 @@ sync_remote() {
             detect_multiple_remote
             `cd $tmp_project && git stash > /dev/null 2>&1`
             `cd $tmp_project && git remote update -p > /dev/null 2>&1`
-            `cd $tmp_project && git checkout $default_branch > /dev/null 2>&1`
-            `cd $tmp_project && git pull $remote_name > /dev/null 2>&1`
+            default_branch='master'
+            #`cd $tmp_project && git checkout $default_branch > /dev/null 2>&1`
+            if (!(cd $tmp_project && git checkout $default_branch > /dev/null 2>&1)); then
+                default_branch='main'
+                `cd $tmp_project && git checkout $default_branch > /dev/null 2>&1`
+            fi
+            `cd $tmp_project && git pull $remote_name $default_branch > /dev/null 2>&1`
             echo -e "\033[1;30m Update Current project: \033[0m\033[1;34m $tmp_project $default_branch \033[0m"
         fi
     done
